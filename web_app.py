@@ -1,13 +1,20 @@
 from flask import Flask, render_template, request
+from pathlib import Path
 
 app = Flask(__name__)
 
 @app.route("/", methods=["GET", "POST"])
 def index():
     prompt = ""
-
+    #如果用户上传文件，则读取文件内容，覆盖文本框内容
     if request.method == "POST":
+
         note = request.form.get("note", "")
+
+    uploaded_file = request.files.get("file")
+
+    if uploaded_file and uploaded_file.filename:
+        note = uploaded_file.read().decode("utf-8")
 
         prompt = f"""
 # AI Learning Assistant Prompt

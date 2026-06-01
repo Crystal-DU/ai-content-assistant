@@ -1,0 +1,7 @@
+Today I learned Flask.
+
+Flask is a lightweight Python framework.
+
+I built my first AI Learning Assistant web application.
+
+My next step is to support PDF import and URL import.
