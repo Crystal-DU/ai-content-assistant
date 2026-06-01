@@ -1,5 +1,6 @@
 from flask import Flask, render_template, request
 from pathlib import Path
+from pypdf import PdfReader
 
 app = Flask(__name__)
 
@@ -11,10 +12,27 @@ def index():
 
         note = request.form.get("note", "")
 
+
     uploaded_file = request.files.get("file")
 
     if uploaded_file and uploaded_file.filename:
-        note = uploaded_file.read().decode("utf-8")
+
+        filename = uploaded_file.filename.lower()
+
+        if filename.endswith(".pdf"):
+
+            reader = PdfReader(uploaded_file)
+
+            note = ""
+
+            for page in reader.pages:
+                text = page.extract_text()
+
+                if text:
+                    note += text + "\n"
+
+        else:
+            note = uploaded_file.read().decode("utf-8")
 
         prompt = f"""
 # AI Learning Assistant Prompt
