@@ -1,8 +1,8 @@
-#AI Learning Assistant
+# AI Learning Assistant
 
 A Python-based learning note analyzer that processes training notes and generates structured summaries.
 
-Features
+## Features
 
 - Read training notes from text files
 - Generate learning summaries
@@ -10,8 +10,8 @@ Features
 - Generate action items
 - Batch processing support
 
-Tech Stack
+## Tech Stack
 
 - Python
-- pathlib
+- Pathlib
 - Markdown
