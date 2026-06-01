@@ -1,4 +1,4 @@
-AI Learning Assistant
+#AI Learning Assistant
 
 A Python-based learning note analyzer that processes training notes and generates structured summaries.
 
@@ -15,4 +15,3 @@ Tech Stack
 - Python
 - pathlib
 - Markdown
-# ai-meeting-summarizer
