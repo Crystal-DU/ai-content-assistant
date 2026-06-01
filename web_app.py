@@ -4,6 +4,8 @@ from pptx import Presentation
 import requests
 from bs4 import BeautifulSoup
 
+source_name = "Manual Input"
+source_type = "TEXT"
 app = Flask(__name__)
 
 
@@ -35,9 +37,11 @@ Please analyze the following content and generate a structured summary.
 
 @app.route("/", methods=["GET", "POST"])
 def index():
+    prompt = ""
     raw_text = ""
     extracted_content = ""
-    prompt = ""
+    source_name = "Manual Input"
+    source_type = "TEXT"
 
     if request.method == "POST":
         action = request.form.get("action")
@@ -52,6 +56,8 @@ def index():
                 headers = {"User-Agent": "Mozilla/5.0"}
                 response = requests.get(url, headers=headers)
                 soup = BeautifulSoup(response.text, "html.parser")
+                source_name = url
+                source_type = "URL"
 
                 for tag in soup(["script", "style"]):
                     tag.decompose()
@@ -80,9 +86,11 @@ def index():
             uploaded_file = request.files.get("file")
 
             if uploaded_file and uploaded_file.filename:
+                source_name = uploaded_file.filename
                 filename = uploaded_file.filename.lower()
 
                 if filename.endswith(".pdf"):
+                    source_type = "PDF"
                     reader = PdfReader(uploaded_file)
                     extracted_content = ""
 
@@ -92,6 +100,7 @@ def index():
                             extracted_content += text + "\n"
 
                 elif filename.endswith(".pptx"):
+                    source_type = "PPTX"
                     presentation = Presentation(uploaded_file)
                     extracted_content = ""
 
@@ -103,6 +112,12 @@ def index():
                                 text = shape.text.strip()
                                 if text:
                                     extracted_content += text + "\n"
+                
+                elif filename.endswith(".txt"):
+                    source_type = "TXT"
+                
+                elif filename.endswith(".md"):
+                    source_type = "MARKDOWN"
 
                 else:
                     extracted_content = uploaded_file.read().decode("utf-8")
@@ -115,7 +130,9 @@ def index():
         "index.html",
         raw_text=raw_text,
         extracted_content=extracted_content,
-        prompt=prompt
+        prompt=prompt,
+        source_name=source_name,
+        source_type=source_type
     )
 
 
