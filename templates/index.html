@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Learning Assistant</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f7fb;
+            margin: 0;
+            padding: 40px;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: auto;
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+        }
+
+        h1 {
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-bottom: 24px;
+        }
+
+        textarea {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 16px;
+            font-size: 14px;
+            box-sizing: border-box;
+            resize: vertical;
+        }
+
+        button {
+            margin-top: 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .result {
+            margin-top: 32px;
+        }
+
+        .copy-btn {
+            background: #10b981;
+        }
+
+        .copy-btn:hover {
+            background: #059669;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>AI Learning Assistant</h1>
+    <p class="subtitle">
+        Generate structured AI prompts from learning notes.
+    </p>
+
+    <form method="POST">
+        <textarea
+            name="note"
+            rows="12"
+            placeholder="Paste your learning notes here..."
+        ></textarea>
+
+        <button type="submit">Generate Prompt</button>
+    </form>
+
+    {% if prompt %}
+    <div class="result">
+        <h2>Generated Prompt</h2>
+
+        <textarea id="promptBox" rows="16" readonly>{{ prompt }}</textarea>
+
+        <button class="copy-btn" onclick="copyPrompt()">Copy Prompt</button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function copyPrompt() {
+    const promptBox = document.getElementById("promptBox");
+    promptBox.select();
+    document.execCommand("copy");
+    alert("Prompt copied!");
+}
+</script>
+
+</body>
+</html>
