@@ -283,7 +283,7 @@
             <div class="card">
                 <div class="section-title">
                     <span class="num">2</span>
-                    Extracted Content Preview
+                    <span id="previewTitle">Extracted Content Preview</span>
                 </div>
 
                 <div class="stats">
@@ -318,7 +318,7 @@
             name="extracted_content"
             placeholder="Extracted content will appear here. You can edit it before generating the prompt."
             >{{ extracted_content }}</textarea>
-            <button class="full-btn" type="submit" name="action" value="generate">
+            <button class="full-btn" type="submit" name="action" value="generate" id="generateBtn">
                 Generate Prompt
             </button>
             </div>
@@ -328,7 +328,7 @@
         <div class="card prompt-card">
             <div class="section-title">
                 <span class="num">3</span>
-                Generated Prompt
+                <span id="promptTitle">Generated Prompt</span>
             </div>
 
             <textarea
@@ -353,11 +353,26 @@ function setMode(mode) {
     document.getElementById("selectedMode").value = mode;
     document.getElementById("promptBtn").classList.remove("active");
     document.getElementById("meetingBtn").classList.remove("active");
+    const previewTitle = document.getElementById("previewTitle");
+    const generateBtn = document.getElementById("generateBtn");
+    const promptTitle = document.getElementById("promptTitle");
 
     if (mode === "prompt") {
         document.getElementById("promptBtn").classList.add("active");
+        previewTitle.textContent = "Extracted Content Preview";
+        generateBtn.textContent = "Generate Prompt";
+
+        if (promptTitle) {
+            promptTitle.textContent = "Generated Prompt";
+        }
     } else {
         document.getElementById("meetingBtn").classList.add("active");
+        previewTitle.textContent = "Meeting Notes Preview";
+        generateBtn.textContent = "Generate Meeting Prompt";
+
+        if (promptTitle) {
+            promptTitle.textContent = "Meeting Summary Prompt";
+        }
     }
 }
 function copyPrompt() {
