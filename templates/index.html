@@ -20,7 +20,7 @@
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 24px;
+            margin-bottom: 2px;
         }
 
         h1 {
@@ -102,7 +102,7 @@
         .support {
             font-size: 12px;
             color: #6b7280;
-            margin-bottom: 22px;
+            margin-bottom: 8px;
         }
 
         textarea {
@@ -117,11 +117,11 @@
         }
 
         .source-box {
-            height: 150px;
+            height: 198px;
         }
 
         .preview-box {
-            height: 275px;
+            height: 320px;
         }
 
         .prompt-box {
@@ -190,7 +190,7 @@
         .mode-switch{
             display:flex;
             gap:12px;
-            margin-bottom:12px;
+            margin-bottom:20px;
         }
         .mode-btn{
             padding:12px 20px;
@@ -211,6 +211,130 @@
             background: linear-gradient(135deg, #4f46e5, #2563eb);
             color: white;
         }
+        .text-label-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .upload-record-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .upload-btn {
+            width: 220px;
+            height: 44px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            border: 1px solid #d7dbe7;
+            border-radius: 12px;
+
+            background: white;
+            color: #4f46e5;
+
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .upload-btn:hover {
+            background: #f8faff;
+            border-color: #6366f1;
+        }
+        .record-btn {
+            height: 44px;
+            min-width: 112px;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+
+            border: 1px solid #c7d2fe;
+            border-radius: 12px;
+
+            background: #eef2ff;
+            color: #4f46e5;
+
+            cursor: pointer;
+            transform: translateY(-9px);
+        }
+        .record-btn.recording {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+        .record-dot {
+            width: 10px;
+            height: 10px;
+            min-width: 10px;
+            min-height: 10px;
+
+            border-radius: 50%;
+            background: #6366f1;
+            flex-shrink:0;
+
+            display: block;
+        }
+        .record-btn.recording .record-dot {
+                width: 12px;
+                height: 12px;
+                border-radius: 3px;
+                background: white;
+        }
+        #recordStatus {
+                margin-top: 0;
+                margin-bottom: 14px;
+                font-size: 13px;
+                color: #6b7280;
+        }
+.lang-select {
+
+    width: 85px;
+    height: 44px;
+
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+
+    background: #f8fafc;
+
+    color: #4f46e5;
+
+    font-weight: 600;
+
+    text-align: center;
+    text-align-last: center;
+
+    cursor: pointer;
+
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+
+    padding: 0;
+}
+.lang-wrapper {
+    position: relative;
+}
+
+.lang-arrow {
+    position: absolute;
+
+    right: 10px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    font-size: 10px;
+
+    color: #6b7280;
+
+    pointer-events: none;
+}
+
     </style>
 </head>
 
@@ -258,20 +382,41 @@
                     placeholder="https://en.wikipedia.org/wiki/Artificial_intelligence"
                 >
 
-                <label>Upload Files</label><br>
-                <input
-                    type="file"
-                    name="file"
-                    accept=".txt,.md,.pdf,.pptx"
-                >
+                <label>Upload Files or Record Speech</label>
+                <div class="upload-record-row">
+                    <label for="file-upload" class="upload-btn">Upload File</label>
+                    <input
+                        id="file-upload"
+                        type="file"
+                        name="file"
+                        accept=".txt,.md,.pdf,.pptx"
+                        style="display: none;"
+                    >
+
+                    <div class="lang-wrapper">
+                        <select id="speechLang" class="lang-select">
+                            <option value="en-US">EN</option>
+                            <option value="ja-JP">JP</option>
+                            <option value="zh-CN">CN</option>
+                            <option value="ko-KR">KR</option>
+                        </select>
+                        <span class="lang-arrow">▼</span>
+                    </div>
+
+                    <button type="button" id="recordBtn" class="record-btn" onclick="toggleRecording()">
+                        <span id="recordIcon" class="record-dot"></span>
+                        <span id="recordText">Ready</span>
+                    </button>
+                </div>
+
                 <div class="support">
                     Supported: .txt, .md, .pdf, .pptx
                 </div>
 
-                <label>Or paste text manually</label>
                 <textarea
                     class="source-box"
                     name="raw_text"
+                    id="rawTextBox"
                     placeholder="Paste your original notes here..."
                 >{{ raw_text }}</textarea>
 
@@ -398,6 +543,75 @@ function updateStats() {
 
     document.getElementById("lineCount").textContent =
         text ? text.split("\n").length : 0;
+}
+
+let recognition;
+let isRecording = false;
+
+function toggleRecording() {
+    if (!isRecording) {
+        startSpeech();
+    } else {
+        stopSpeech();
+    }
+}
+
+function startSpeech() {
+    const SpeechRecognition =
+        window.SpeechRecognition || window.webkitSpeechRecognition;
+
+    if (!SpeechRecognition) {
+        document.getElementById("recordStatus").innerText =
+            "Speech recognition is not supported. Please use Chrome.";
+        return;
+    }
+
+    recognition = new SpeechRecognition();
+    recognition.lang = document.getElementById("speechLang").value;
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = function() {
+        isRecording = true;
+        document.getElementById("recordBtn").classList.add("recording");
+        document.getElementById("recordText").innerText =
+            "Recording...";
+    };
+
+    recognition.onend = function() {
+        isRecording = false;
+        document.getElementById("recordBtn").classList.remove("recording");
+        document.getElementById("recordText").innerText =
+            "Ready";
+    };
+
+    recognition.onerror = function(event) {
+        document.getElementById("recordText").innerText =
+            "Error: " + event.error;
+    };
+
+    recognition.onresult = function(event) {
+        let finalTranscript = "";
+
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+            if (event.results[i].isFinal) {
+                finalTranscript += event.results[i][0].transcript + " ";
+            }
+        }
+
+        if (finalTranscript) {
+            const rawTextBox = document.getElementById("rawTextBox");
+            rawTextBox.value += finalTranscript;
+        }
+    };
+
+    recognition.start();
+}
+
+function stopSpeech() {
+    if (recognition) {
+        recognition.stop();
+    }
 }
 
 const previewBox = document.getElementById("previewBox");
